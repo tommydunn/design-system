@@ -1,3 +1,4 @@
+import del from "del";
 import gulp from "gulp";
 import {spawn} from "child_process";
 import hugoBin from "hugo-bin";
@@ -23,6 +24,9 @@ gulp.task("build", ["documentation", "scss", "js", "fonts"], (cb) => buildSite(c
 gulp.task("build-preview", ["scss", "js", "fonts"], (cb) => buildSite(cb, hugoArgsPreview, "production"));
 
 // SCSS
+gulp.task("css-clean", () => {
+  gulp.del("./site/static/css/**/*");
+});
 gulp.task("scss", () => (
   gulp.src("./src/scss/**/*.scss")
     .pipe(scss({
@@ -61,14 +65,14 @@ gulp.task("fonts", () => (
 ));
 
 // Development server with browsersync
-gulp.task("server", ["documentation", "hugo", "scss", "js", "fonts"], () => {
+gulp.task("server", ["documentation", "hugo", "css-clean", "scss", "js", "fonts"], () => {
   browserSync.init({
     server: {
       baseDir: "./dist"
     }
   });
   gulp.watch("./src/js/**/*.js", ["js"]);
-  gulp.watch("./src/scss/**/*.scss", ["scss"]);
+  gulp.watch("./src/scss/**/*.scss", ["css-clean", "scss"]);
   gulp.watch("./src/fonts/**/*", ["fonts"]);
   gulp.watch("./site/**/*", ["hugo"]);
   gulp.watch("../packages/**/documentation/**/*", ["documentation"]);
